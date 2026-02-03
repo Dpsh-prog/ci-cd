@@ -12,14 +12,9 @@ jobs:
 
       - name: Deploy with Docker
         run: |
-          # 1. Enter the folder where your docker-compose.yml lives
-          cd lab
-          
-          # 2. Shut down any old versions
+          # We know the file is in the root, so we run it directly
           docker compose down --remove-orphans
-          
-          # 3. Build and start the new containers
           docker compose up -d --build
           
-          # 4. Show us that it worked
+          echo "--- Checking if containers started ---"
           docker ps
