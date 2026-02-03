@@ -1,1 +1,27 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: redis_broker
+    ports:
+      - "6379:6379"
+    restart: always
 
+  worker:
+    build: ./worker
+    command: celery -A tasks worker --loglevel=info
+    environment:
+      - REDIS_HOST=redis
+    depends_on:
+      - redis
+    restart: always
+
+  dashboard:
+    image: mher/flower:0.9.7
+    container_name: monitoring_ui
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    ports:
+      - "5555:5555" # Access this in your browser!
+    depends_on:
+      - redis
+    restart: always
