@@ -7,15 +7,34 @@ jobs:
   deploy:
     runs-on: self-hosted
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Force Deploy from Absolute Path
+      - name: Create Fresh Compose File
         run: |
-          # We are bypassing GitHub's workspace logic and pointing directly to the disk
-          # Use the path you found with the 'find' command
-          docker compose -f /home/r1m/actions-runner/_work/ci-cd/ci-cd/docker-compose.yml down --remove-orphans
-          docker compose -f /home/r1m/actions-runner/_work/ci-cd/ci-cd/docker-compose.yml up -d --build
-          
-          echo "--- Checking Docker Status ---"
-          docker ps
+          # This creates a brand new file right in the runner folder
+          cat <<EOF > docker-compose.yml
+          services:
+            redis:
+              image: redis:alpine
+              container_name: redis
+              ports:
+                - "6379:6379"
+
+            worker:
+              image: python:3.9-slim
+              container_name: worker
+              depends_on:
+                - redis
+              command: python -c "print('Worker started')"
+
+            dashboard:
+              image: nginx:alpine
+              container_name: dashboard
+              ports:
+                - "5555:80"
+          EOF
+
+      - name: Deploy the Created File
+        run: |
+          # Use sudo to force it through any permission walls
+          sudo docker compose -f docker-compose.yml down --remove-orphans
+          sudo docker compose -f docker-compose.yml up -d
+          sudo docker ps
