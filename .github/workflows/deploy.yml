@@ -10,11 +10,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy with Docker
+      - name: Force Deploy from Absolute Path
         run: |
-          # We know the file is in the root, so we run it directly
-          docker compose down --remove-orphans
-          docker compose up -d --build
+          # We are bypassing GitHub's workspace logic and pointing directly to the disk
+          # Use the path you found with the 'find' command
+          docker compose -f /home/r1m/actions-runner/_work/ci-cd/ci-cd/docker-compose.yml down --remove-orphans
+          docker compose -f /home/r1m/actions-runner/_work/ci-cd/ci-cd/docker-compose.yml up -d --build
           
-          echo "--- Checking if containers started ---"
+          echo "--- Checking Docker Status ---"
           docker ps
