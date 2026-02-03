@@ -12,6 +12,7 @@ jobs:
 
       - name: Deploy with Docker
         run: |
-          # This command ensures we are in the right folder before running docker
+          ls -la
           docker compose down --remove-orphans
           docker compose up -d --build
+          docker ps
