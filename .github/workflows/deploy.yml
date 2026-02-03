@@ -1,0 +1,14 @@
+name: Deploy App
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: self-hosted  # Tells GitHub to use YOUR VM
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Docker Compose
+        run: |
+          docker-compose down
+          docker-compose up -d --build
