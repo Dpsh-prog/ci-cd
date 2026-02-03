@@ -10,9 +10,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy with Docker
+      - name: Locate Files and Deploy
         run: |
-          ls -la
+          echo "--- Searching for docker-compose.yml ---"
+          # This helps us debug if 'cd lab' is the wrong path
+          find . -name "docker-compose.yml"
+          
+          echo "--- Moving to lab directory and deploying ---"
+          # We use '|| true' so the script doesn't crash if the folder doesn't exist
+          cd lab || echo "Folder 'lab' not found, staying in root"
+          
           docker compose down --remove-orphans
           docker compose up -d --build
+          
+          echo "--- Final Status ---"
           docker ps
